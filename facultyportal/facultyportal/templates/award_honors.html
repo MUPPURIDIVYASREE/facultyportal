@@ -5,7 +5,7 @@
 <div class="form-section">
     <h2 class="section-heading text-center animate__animated animate__fadeInDown">Awards & Honors</h2>
 
-    <form method="POST" class="animate__animated animate__fadeInUp" id="awardForm">
+    <form method="POST" class="animate__animated animate__fadeInUp" id="awardForm" autocomplete = "off">>
         {% csrf_token %}
         <div id="award-container">
             {% for award in awards %}
