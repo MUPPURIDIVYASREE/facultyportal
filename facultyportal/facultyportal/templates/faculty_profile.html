@@ -1,0 +1,85 @@
+{% extends 'faculty_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-section">
+    <h2 class="section-heading text-center">Faculty Profile</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="row g-3" >
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" required value="{{ profile.name|default_if_none:'' }}">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Designation</label>
+            <input type="text" name="designation" class="form-control" required value="{{ profile.designation|default_if_none:'' }}">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Department</label>
+            <select name="department" class="form-select" required>
+                <option value="">Select Department</option>
+                {% for code, name in department_choices %}
+                    <option value="{{ code }}" {% if profile.department == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Contact Number</label>
+            <input type="text" name="contact_number" class="form-control" value="{{ profile.contact_number|default_if_none:'' }}">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Office Number</label>
+            <input type="text" name="office_number" class="form-control" value="{{ profile.office_number|default_if_none:'' }}">
+        </div>
+
+     
+        <div class="col-md-6">
+            <label class="form-label">Profile Photo</label>
+            {% if profile.profile_photo %}
+                <div class="mb-2">
+                    <img src="{{ profile.profile_photo.url }}" class="img-thumbnail" width="120" alt="Photo">
+                </div>
+            {% endif %}
+            <input type="file" name="profile_photo" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">CV Upload (PDF)</label>
+            {% if profile.cv_upload %}
+                <div><a href="{{ profile.cv_upload.url }}" target="_blank">View Current CV</a></div>
+            {% endif %}
+            <input type="file" name="cv_upload" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Publications Upload (PDF)</label>
+            {% if profile.publications_upload %}
+                <div><a href="{{ profile.publications_upload.url }}" target="_blank">View Publications</a></div>
+            {% endif %}
+            <input type="file" name="publications_upload" class="form-control">
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">About Me</label>
+            <textarea name="about_me" class="form-control" rows="3">{{ profile.about_me|default_if_none:'' }}</textarea>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Research Interest</label>
+            <textarea name="research_interest" class="form-control" rows="3">{{ profile.research_interest|default_if_none:'' }}</textarea>
+        </div>
+
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-custom px-4 py-2 mt-3">
+                {% if profile %}Update Profile{% else %}Create Profile{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

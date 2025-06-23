@@ -1,0 +1,89 @@
+{% extends 'faculty_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-section">
+    <h2 class="section-heading text-center animate__animated animate__fadeInDown">Awards & Honors</h2>
+
+    <form method="POST" class="animate__animated animate__fadeInUp" id="awardForm">
+        {% csrf_token %}
+        <div id="award-container">
+            {% for award in awards %}
+                <div class="row g-3 mb-3 award-entry {% if award %}existing-entry{% endif %} shadow-sm p-3 rounded bg-light" data-id="{{ award.id|default:'' }}">
+                    <div class="col-md-4">
+                        <label class="form-label">Award</label>
+                        <textarea name="name" class="form-control" required>{{ award.name|default:'' }}</textarea>
+                      </div>
+                      
+            
+                    <div class="col-md-1 d-flex align-items-end">
+                        {% if award %}
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteAward(this, '{{ award.id }}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.award-entry').remove();">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="addAward()">
+                <i class="fas fa-plus-circle"></i> Add More
+            </button>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-custom"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addAward() {
+        const container = document.getElementById('award-container');
+        const newEntry = document.createElement('div');
+        newEntry.className = 'row g-3 mb-3 award-entry shadow-sm p-3 rounded bg-white';
+        newEntry.innerHTML = `
+            <div class="col-md-4">
+                <label class="form-label">Award</label>
+                <textarea name="name" class="form-control" required></textarea>
+            </div>
+
+         
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.award-entry').remove();">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(newEntry);
+    }
+
+    function deleteAward(button, awardId) {
+        if (confirm("Are you sure you want to delete this award?")) {
+            fetch("{% url 'delete_award_ajax' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `award_id=${awardId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.closest('.award-entry').remove();
+                } else {
+                    alert("Error: " + (data.error || "Unable to delete."));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+        }
+    }
+</script>
+{% endblock %}

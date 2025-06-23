@@ -1,0 +1,93 @@
+{% extends 'faculty_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-section">
+    <h2 class="section-heading text-center animate__animated animate__fadeInDown">Teaching</h2>
+
+    <form method="POST" id="teachingForm" class="animate__animated animate__fadeInUp">
+        {% csrf_token %}
+        <div id="teachingContainer">
+            {% if teachings %}
+                {% for teaching in teachings %}
+                    <div class="row g-3 mb-3 teaching-block shadow-sm p-3 rounded bg-light animate__animated animate__fadeInUp" data-id="{{ teaching.id }}">
+                        <input type="hidden" name="teaching_id" value="{{ teaching.id }}">
+                        <div class="col-md-6">
+                            <label class="form-label">Teaching Description</label>
+                            <textarea name="teaching_description" class="form-control" rows="3" required>{{ teaching.teaching_description }}</textarea>
+                        </div>
+                        
+                        
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="deleteTeaching(this, '{{ teaching.id }}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <script>window.onload = () => addTeachingBlock();</script>
+            {% endif %}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="addTeachingBlock()">
+                <i class="fas fa-plus-circle"></i> Add More
+            </button>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-custom"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .teaching-block {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    function addTeachingBlock() {
+        const container = document.getElementById('teachingContainer');
+        const block = document.createElement('div');
+        block.className = 'row g-3 mb-3 teaching-block shadow-sm p-3 rounded bg-white animate__animated animate__fadeInUp';
+        block.innerHTML = `
+            <div class="col-md-6">
+                <label class="form-label">Course Title</label>
+                <textarea name="teaching_description" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.teaching-block').remove();">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(block);
+    }
+
+    function deleteTeaching(button, teachingId) {
+        if (confirm("Are you sure you want to delete this record?")) {
+            fetch("{% url 'delete_teaching_ajax' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `teaching_id=${teachingId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.closest('.teaching-block').remove();
+                } else {
+                    alert("Error: " + (data.error || "Unable to delete."));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+        }
+    }
+</script>
+{% endblock %}

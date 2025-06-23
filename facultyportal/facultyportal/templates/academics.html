@@ -1,0 +1,88 @@
+{% extends 'faculty_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-section">
+    <h2 class="section-heading text-center animate__animated animate__fadeInDown">Academic Qualifications</h2>
+
+    <form method="POST" id="academicForm" class="animate__animated animate__fadeInUp">
+        {% csrf_token %}
+        <div id="academicContainer">
+            {% for academic in academics %}
+                <div class="row g-3 mb-3 academic-entry shadow-sm p-3 rounded bg-light" data-id="{{ academic.id }}">
+                    <input type="hidden" name="academic_id" value="{{ academic.id }}">
+                    <div class="col-md-3">
+                        <label class="form-label">Academics Description</label>
+                        <textarea name="academics_description" class="form-control" required>{{ academic.academics_description }}</textarea>
+                      </div>
+                      
+                    
+                    
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteAcademic(this, '{{ academic.id }}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            {% empty %}
+                <script>window.onload = () => addAcademicBlock();</script>
+            {% endfor %}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="addAcademicBlock()">
+                <i class="fas fa-plus-circle"></i> Add More
+            </button>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-custom"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addAcademicBlock() {
+        const container = document.getElementById('academicContainer');
+        const newEntry = document.createElement('div');
+        newEntry.className = 'row g-3 mb-3 academic-entry shadow-sm p-3 rounded bg-white';
+        newEntry.innerHTML = `
+            <input type="hidden" name="academic_id" value="">
+           <div class="col-md-3">
+                <label class="form-label">Academics Description</label>
+                <textarea name="academics_description" class="form-control" required></textarea>
+            </div>
+
+       
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.academic-entry').remove();">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(newEntry);
+    }
+
+    function deleteAcademic(button, academicId) {
+        if (confirm("Are you sure you want to delete this academic record?")) {
+            fetch("{% url 'delete_academic_ajax' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `id=${academicId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.closest('.academic-entry').remove();
+                } else {
+                    alert("Error: " + (data.error || "Unable to delete."));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% load static %}
+<div class="publications-section container my-4">
+  <div class="card shadow rounded animate-slide-in">
+    <div class="card-body">
+      <h4 class="card-title text-center fw-bold mb-3 section-title">List of Publications</h4>
+
+      {% if publications %}
+        <ul class="publication-list ps-3">
+          {% for pub in publications %}
+            <li class="mb-2">{{ pub.publications }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-center text-muted" style="font-style: italic;">No publication records available.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .publications-section {
+    animation: fadeInUp 0.7s ease-in-out;
+  }
+
+  .section-title {
+    color: #2e5c8a;
+    border-bottom: 2px solid #2e5c8a;
+    display: inline-block;
+    padding-bottom: 5px;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  .publication-list li {
+    list-style-type: disc;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.8s ease forwards;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 768px) {
+    .section-title {
+      font-size: 1.3rem;
+    }
+
+    .publication-list li {
+      font-size: 0.95rem;
+    }
+  }
+</style>
